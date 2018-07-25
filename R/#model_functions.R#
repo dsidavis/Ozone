@@ -1,0 +1,48 @@
+# Structural functions for each model
+
+# From Schelegle et al.
+
+UOS = function(O3, Ve, t, # inputs
+               DR = O3 * Ve * 1.196,
+               CD = cuml_integral(DR, t),
+               Dos) #parameter
+    # Vectorized means for calc UOS over a number of t timepoints
+{
+    DR / (1 + exp(-20 * (t - (Dos * t / CD))))
+}
+
+FEV = function(UOS, n_t = length(UOS), #input
+               K, A # parameters
+               )
+    # Takes vectors of UOS and calculates FEV
+{
+    r = (1 - exp(-k))
+    
+    x = numeric(n_t)
+    x[1] = 0
+    
+    for(i in 2:n_t){
+        x[i] = ((UOS[i - 1] / K) - x[i - 1]) * r
+    }
+    
+    sum(x) * A
+}
+
+cuml_integral = function(x, t)
+    # Uses the trapzoid - integral approx.
+{
+    cumsum((c(0,x[-length(x)]) + x) / 2 * t)
+}
+
+FEV2 = function(Ui, M, E)
+{
+    exp(Ui) * M + E
+}
+
+M = function(b1, b2, b3, b4, X, age, bmi)
+{
+    (b1 + b2 * (age - 23.8) + b8 * (bmi - 23.1)) / (1 + b4 * exp(-b3 * X)) -
+        (b1 + b2 * (age -23.8) + b8 * (bmi - 23.1)) / (1 + b4)
+}
+
+              
