@@ -1,5 +1,6 @@
 # Structural functions for each model
 
+################################################################################
 # From Schelegle et al.
 
 UOS = function(O3, Ve, t, # inputs
@@ -29,7 +30,27 @@ FEV = function(UOS, n_t = length(UOS), #input
 }
 
 cuml_integral = function(x, t)
-    # Uses the trapzoid - integral approx.
+    # Uses the trapzoid - integral approx. over a vector of x and t vals
 {
     cumsum((c(0,x[-length(x)]) + x) / 2 * t)
 }
+
+################################################################################
+# From McDonnell et al, 2013
+
+FEV2 = function(Ui, M)
+    # Non-linear form of the model
+    # The E term is error, modeled elsewhere
+{
+    exp(Ui) * M
+}
+
+
+M = function(b1, b2, b3, b4, X, age, bmi)
+    # Calculates the M values with covars
+{
+    (b1 + b2 * (age - 23.8) + b8 * (bmi - 23.1)) / (1 + b4 * exp(-b3 * X)) -
+        (b1 + b2 * (age -23.8) + b8 * (bmi - 23.1)) / (1 + b4)
+}
+
+              
