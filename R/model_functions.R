@@ -20,6 +20,8 @@ FEV = function(UOS, n_t = length(UOS), #input
     r = (1 - exp(-k))
     
     x = numeric(n_t)
+
+    # Not sure if this is the correct way to do this
     x[1] = 0
     
     for(i in 2:n_t){
