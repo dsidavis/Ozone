@@ -25,7 +25,7 @@ FEV = function(UOS, n_t = length(UOS), fev_base, #input
     x[1] = fev_base
     
     for(i in 2:n_t){
-        x[i] = x[i-1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
+        x[i] = x[i - 1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
     }
     
     cumsum(x) * A
