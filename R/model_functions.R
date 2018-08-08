@@ -26,10 +26,10 @@ deltaX = function(UOS, n_t = length(UOS), fev_base, #input
     
 
     for(i in 2:n_t)
-        x[i] = (((UOS[i - 1] / K) - x[i - 1]) * r)
+        x[i] = x[i-1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
 
     
-    cumsum(x)
+    x
 }
 
 FEV1 = function(dX, A){

@@ -23,4 +23,4 @@ ind_data = list(O3 = rep(rep(c(0.123, 0), each = 2), 3),
                 Ve = rep(c(30, 13), length.out = 12), 
                 t_stop = c(0, 50, 63, 113, 126, 176, 200, 260, 273, 323, 336, 386, 399))
 
-experimentFEV1(ind_data$O3, ind_data$Ve, ind_data$t_stop, Dos = dos, K = k, A = a)
+aa = experimentFEV1(ind_data$O3, ind_data$Ve, ind_data$t_stop, Dos = dos, K = k, A = a)
