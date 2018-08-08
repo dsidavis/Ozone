@@ -26,7 +26,7 @@ deltaX = function(UOS, n_t = length(UOS), fev_base, #input
     
 
     for(i in 2:n_t)
-        x[i] = x[i - 1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
+        x[i] = (((UOS[i - 1] / K) - x[i - 1]) * r)
 
     
     cumsum(x)
@@ -43,16 +43,15 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 
 {
     dFEV1 = numeric(length(t_stop))
-    dFEV1[1] = 0 # start at 0 delta FEV1
+    x_last = 0 # start at 0 delta FEV1
     
-    for(i in seq(length(t_stop))) {
-        t = t_stop[i]:t_stop[i+1]
-        tmp = FEV(UOS(O3[i], Ve[i], t, Dos = dos), fev_base = dFEV[i-1])
-        dFEV1[i] = FEV()
+    for(i in seq(length(t_stop) - 1)) {
+        t = t_stop[i]+1:t_stop[i+1]
+        tmp = deltaX(UOS(O3[i], Ve[i], t, Dos = dos), fev_base = x_last, K = K)
+        x_last = dFEV1[i] = tmp[length(tmp)]
     }
     
-                
-
+    dFEV1 * A
 }
 
 
