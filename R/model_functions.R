@@ -47,7 +47,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     
     for(i in seq(length(t_stop) - 1)) {
         t = t_stop[i]+1:t_stop[i+1]
-        tmp = deltaX(UOS(O3[i], Ve[i], t, Dos = dos), fev_base = x_last, K = K)
+        tmp = deltaX(UOS(O3[i], Ve[i], t, Dos = Dos), fev_base = x_last, K = K)
         x_last = dFEV1[i] = tmp[length(tmp)]
     }
     
