@@ -38,7 +38,7 @@ FEV1 = function(dX, A){
 
 experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     # O3, Ve are vectors with the measurement for the time interval
-    # t_stop are the stop points (in min) for each associated interval, with t_stop[1] == 0
+    # t_stop are the stop points (in min) for each associated interval, with t_stop[1] == 1
     # 
 
 {
