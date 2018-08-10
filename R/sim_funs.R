@@ -2,7 +2,7 @@
 
 sim_data = function(O3, Ve, CD, t, #inputs
                     Dos, K, A, n, # parameters
-                    sigma #error )
+                    sigma) #error 
 
 {
     uos = UOS(O3, Ve, CD, t, Dos)

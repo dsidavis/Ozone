@@ -44,6 +44,9 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 {
     dFEV1 = numeric(length(t_stop))
     x_last = 0 # start at 0 delta FEV1
+
+    if(t_stop[1] != 0)
+        t_stop = c(0, t_stop)
     
     for(i in seq(length(t_stop) - 1)) {
         t = t_stop[i]+1:t_stop[i+1]
