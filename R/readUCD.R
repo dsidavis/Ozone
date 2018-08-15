@@ -59,7 +59,7 @@ readExp = function(xls = "UCD_WCA2002.xls", sheets = c("FEV1", "EXVE", "O3", "RV
     if(any(diff(n_person) != 0))
         stop("Different number of subjects between sheets!\n",
              paste(sheets, n_person, sep = ": ", collapse = "\n"))
-    browser()
+    # browser()
 
     n_protocol = sapply(d, function(x) length(unique(x$protocolNum)))
 
@@ -83,7 +83,7 @@ readExp = function(xls = "UCD_WCA2002.xls", sheets = c("FEV1", "EXVE", "O3", "RV
     ans = unlist(ans, recursive=FALSE)
     ans = lapply(ans, summarizeTS)
     
-    d
+    ans
     
 }
 
@@ -131,7 +131,7 @@ combineVE = function(df, dropExtra = TRUE)
     if(any(!exve & !rve))
         warning("Value missing for both EXVE and RVE. Using NA")
     ve = df$EXVE
-    ve[!exve] = df$RVE[rve]
+    ve[!exve & rve] = df$RVE[!exve & rve]
     df$VE = ve
     if(dropExtra)
         df = df[, !colnames(df) %in% c("EXVE", "RVE")]
