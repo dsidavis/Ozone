@@ -49,7 +49,95 @@ function(xls = "UCD_WCA2002.xls", sheet = "FEV1", data = readxl::read_excel(xls,
     invisible(ans)
 }
 
+readExp = function(xls = "UCD_WCA2002.xls", sheets = c("FEV1", "EXVE", "O3", "RVE"),
+                   data = lapply(sheets, function(x, xls) readSheet(xls, sheet = x), xls = xls))
+{
+    d = lapply(data, as.data.frame)
 
+    # assumes all sub. accounted for
+    n_person = sapply(d, function(x) length(unique(x$person))) 
+    if(any(diff(n_person) != 0))
+        stop("Different number of subjects between sheets!\n",
+             paste(sheets, n_person, sep = ": ", collapse = "\n"))
+    browser()
+
+    n_protocol = sapply(d, function(x) length(unique(x$protocolNum)))
+
+    if(any(diff(n_protocol) != 0))
+        stop("Different number of protocol between sheets!\n",
+             paste(sheets, n_protocol, sep = ": ", collapse = "\n"))
+
+    ans = lapply(seq(n_person[1]), function(i) {
+        lapply(seq(n_protocol[1]), function(j) {
+            dd = lapply(d, function(x) {
+                tmp = x[x$person == i & x$protocolNum == j,]
+                expandTS(tmp$startTime, tmp$endTime, tmp[,1], colnames(tmp)[1])
+            })
+            a = Reduce(function(x, y) merge(x, y, all = TRUE), dd)
+            a$person = i
+            a$protocolNum = j
+            a
+        })
+    })
+    
+    ans = unlist(ans, recursive=FALSE)
+    ans = lapply(ans, summarizeTS)
+    
+    d
+    
+}
+
+expandTS = function(starts, ends, value, val_name)
+{
+    
+    starts = as.integer(starts)
+    ends = as.integer(ends)
+
+    ans = lapply(seq_along(starts), function(i) {
+        
+        time = starts[i]:max(c(ends[i]-1, 0)) #avoid overlapping times
+        data.frame(time = time,
+                   value = value[i])
+    })
+    ans = do.call(rbind, ans)
+    colnames(ans)[2] = val_name
+    ans
+}
+
+summarizeTS = function(ts)
+{
+    ts = combineVE(ts)
+    i = !duplicated(ts[,colnames(ts) != "time"])
+    ts_reduced = ts[i,]
+
+    ans = lapply(seq(nrow(ts_reduced)), function(j){
+        tmp = ts_reduced[j,]
+        tmp$startTime = tmp$time
+        if(j < nrow(ts_reduced)){
+            tmp$endTime = ts_reduced$time[j+1]
+        } else
+            tmp$endTime = max(ts_reduced$time)
+        tmp
+    })
+    do.call(rbind, ans)
+}
+
+combineVE = function(df, dropExtra = TRUE)
+{
+    exve = !is.na(df$EXVE)
+    rve = !is.na(df$RVE)
+    if(any(exve & rve))
+        warning("Values present for both EXVE and RVE. Using RVE")
+    if(any(!exve & !rve))
+        warning("Value missing for both EXVE and RVE. Using NA")
+    ve = df$EXVE
+    ve[!exve] = df$RVE[rve]
+    df$VE = ve
+    if(dropExtra)
+        df = df[, !colnames(df) %in% c("EXVE", "RVE")]
+    
+    df
+}
 
 
 mkId =
@@ -94,3 +182,4 @@ function(xls = "UCD_WCA2002.xls", fev = readSheet(xls), o3 = readSheet(xls, "O3"
         fev
 
 }    
+
