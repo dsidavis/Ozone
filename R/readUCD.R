@@ -139,6 +139,14 @@ combineVE = function(df, dropExtra = TRUE)
     df
 }
 
+deltaFEV1 = function(df)
+{
+    FEV1_0 = df$FEV1[df$time == 0]
+    df$dFEV1 = (df$FEV1 - FEV1_0) / FEV1_0
+    df
+}
+
+
 
 mkId =
 function(d, vars)

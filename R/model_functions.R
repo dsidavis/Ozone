@@ -24,10 +24,9 @@ deltaX = function(UOS, n_t = length(UOS), fev_base, #input
     # Not right way to do this - every person starts with a baseline
     x[1] = fev_base
     
-
-    for(i in 2:n_t)
-        x[i] = x[i-1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
-
+    if(n_t > 1)
+        for(i in 2:n_t)
+            x[i] = x[i-1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
     
     x
 }
