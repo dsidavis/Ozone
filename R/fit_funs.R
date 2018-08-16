@@ -42,7 +42,8 @@ fit_FEV1 = function(pars = c(Dos = 1100, K = 0.02, A = -0.02), df)
 }
 
 
-f = function(pars, d)
+fit_FEV1b = function(pars, d)
+
 {
     sum(sapply(d, function(x, pars) fit_FEV1(pars, df = x), pars = pars), na.rm = TRUE)
 }
