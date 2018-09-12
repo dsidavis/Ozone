@@ -1,13 +1,12 @@
-ucd = list.files(pattern = "UCD_.*\\.xls")
+ucd = list.files(path = "data", pattern = "UCD_.*\\.xls", full = TRUE)
 
 
-fev = readSheet()
-o3 = readSheet(, "O3")
+fev = readSheet("data/UCD_WCA2002.xls")
+o3 = readSheet("data/UCD_WCA2002.xls", "O3")
 ans = combineFevO3(, fev, o3)
 
 
-ans = combineFevO3("UCD_WCA2002.xls")
-
+ans = combineFevO3("data/UCD_WCA2002.xls")
 
 # Seems to work for
 #   UCD_WCA2002.xls - manually checked 5 rows
