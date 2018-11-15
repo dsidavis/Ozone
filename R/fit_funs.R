@@ -18,7 +18,7 @@ get_error = function(pred, obs, fun = MSE)
 
 SSE = function(x, y)
 {
-    (x-y)^2
+    (x - y) ^ 2
 }
 
 loglike = function(x)
@@ -28,7 +28,7 @@ loglike = function(x)
 }
 
 
-fit_FEV1 = function(pars = c(Dos = 1100, K = 0.02, A = -0.02), df)
+fit_FEV1 = function(pars, df)
 {
     pred = get_FEV1_prediction(df, Dos = pars[1], K = pars[2], A = pars[3])
     # browser()
@@ -38,7 +38,7 @@ fit_FEV1 = function(pars = c(Dos = 1100, K = 0.02, A = -0.02), df)
 
     # })
     
-    sum(SSE(pred, df$dFEV1), na.rm = TRUE) #not quite right, but works for now 
+    sum(SSE(pred, df$dFEV1), na.rm = TRUE)
 }
 
 
@@ -46,4 +46,9 @@ fit_FEV1b = function(pars, d)
 
 {
     sum(sapply(d, function(x, pars) fit_FEV1(pars, df = x), pars = pars), na.rm = TRUE)
+}
+
+fit_FEV_person = function(pars, d)
+{
+    
 }

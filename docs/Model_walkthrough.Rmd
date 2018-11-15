@@ -1,0 +1,168 @@
+---
+title: "A walkthrough of the Ozone two-compartment model"
+author: "Matt Espe"
+date: "15 Nov 2018"
+geometry: margin=1in
+output: pdf_document
+---
+
+This is a short walkthrough of the two-compartment model of FEV1 changes in humans exposed to ozone.
+It attempts to replicate the work done in "Modelling of individual subject ozone exposure response kinetics" by Schelegle et al, 2012.
+
+# Model functional form
+
+The model consists of two compartments. 
+In the first compartment, uncompensated oxidant stress (UOS) accumulates according to the formula,
+
+$$ UOS(t) = \frac{DR(t)}{(1 + exp(-20(t - Dos * t/CD)))}$$
+
+Where DR(t) equals,
+
+$$ DR(t) = O_3 * V_e * 1.96 $$
+
+and CD equals,
+
+$$ CD = \int DR(t) dt $$
+
+In the second compartment, UOS triggers the production of x according to,
+
+$$ \Delta X = (( \frac{UOS(t)}{K_{el}} ) - X_{t-1})(1 - exp(-K_{el})) $$
+
+Where $K_{el}$ is the rate constant of the elimination of x from the airway, and $X_{t-1}$ is the value of x at the previous time-point.
+
+The total x is equal to the sum of these $\Delta x$, 
+
+$$ X(t) = \sum{\Delta x}$$
+
+Finally, the change in FEV1 is calculated as
+
+$$ \Delta FEV1 = X(t) * A $$
+
+## Summary of input and parameters
+
+Inputs:
+  - t is time in minutes
+  - $O_3$ is the ozone concentration
+  - $V_E$ is the 
+  
+Parameters:
+  - Dos
+  - $K_{el}$
+  - A
+  
+# Model implementation
+
+The model is implemented by functions in `R/model_functions.R`.
+
+For a single time point with consistent $O_3$ and $V_E$, i.e., a block of an experiment, 
+
+`UOS()` calculates the UOS in a vectorized manner over a set of time points.
+
+`deltaX()` takes the UOS, a starting value for FEV1 (`fev_base`), and calculates the cummulative sum of $\Delta x$.
+
+`experimentFEV1()` runs these two functions over a entire experiment. The inputs are matched vectors of
+  - `O3`
+  - `Ve`
+  - `t_stop`
+
+Where each element is the `O3`, etc. for a block of the experiment, with `t_stop` being the minute mark when that block ends. 
+The first element is the starting FEV1 for the experiment (i.e., the baseline).
+
+This function requires the three parameters be specified, Dos, K, and A.
+
+# Fitting the model
+
+The model can be fit to data by first reading the data into R using the `readExp()` function defined in `R/readUCD.R`. 
+This function takes the path to a UCD Excel spreadsheet, and reads and munges the data into the needed format,
+
+```
+d = readExp("data/UCD_WCA2002.xls")
+```
+
+The resulting object is a list, with each element a single person x protocol/experiment.
+
+Next, the deltaFEV1 needs to be added to the data using the `deltaFEV1()` function,
+
+```
+d = lapply(d, deltaFEV1)
+```
+
+Finally, parameters can be fit using R's built in optimizer functions and the `fit_FEV1b()` (defined in `R/fit_funs.R`),
+
+```
+fit = optim(list(Dos = 1, K = 0.040, A = -0.040), fit_FEV1b,
+            d = d, method = "L-BFGS-B",
+            lower = c(5,log(2)/1000, -0.15),
+            upper = c(2500, log(2)/1, 0))
+```
+
+_Note: we use the same constraints on the parameters here as Schelegle et al, 2012_
+
+
+`fit_FEV1()` uses the `get_FEV1_prediction()` function, which runs `experimentFEV1()` over each person x protocol and gets the predicted delta FEV1.
+By default the `fit_FEV1()` functions calculate the sum of square error for these predictions.
+The `optim()` function will then attempt to find the values of Dos, K, and A which minimize the SSE across all experiments. 
+
+## Alternate approach 
+
+Instead of fitting parameters to an entire experiment, we can instead fit parameters to each individual person, then look at the average of these parameters.
+This is actually the approached used by Schelegle et al.
+
+```
+i = sapply(d, function(x) unique(x$person))
+
+fit2 = lapply(unique(i), function(j){
+    tmp = d[i == j]
+    optim(c(Dos = 900, K = 0.040, A = -0.040), fit_FEV1b,
+          d = tmp, #method = "L-BFGS-B",
+          lower = c(5,log(2)/1000, -0.15),
+          upper = c(2500, log(2)/1, 0))
+})
+
+summary(do.call(rbind, lapply(fit2, '[[', "par")))
+```
+
+# Current issues
+
+Currently, the fit returns the starting value of Dos, regardless of starting value.
+The SSE is flat regardless of Dos value.
+The other parameters seem to be stable to changes in starting value, but not Dos.
+
+We can test this by simulating a fake dFEV1 set, then attempting to fit the model to it, starting with the observed data `d` used above,
+```
+tt = d[[1]]
+
+tt$dFEV1 = jitter(as.vector(get_FEV1_prediction(tt, 1100, .02, -.1)))
+
+```
+and then fitting the model to it,
+
+```
+optim(c(Dos = 900, K = 0.040, A = -0.040), fit_FEV1b,
+      d = list(tt), method = "L-BFGS-B",
+          lower = c(5,log(2)/1000, -0.15),
+          upper = c(2500, log(2)/1, 0))
+```
+
+which results in,
+
+```
+$par
+         Dos            K            A 
+899.94339016   0.01910403  -0.09544416 
+```
+
+As you can see, both K and A recover the original values, but Dos stays at the initial value.
+It does this regardless of the initial value. 
+I have confirmed that the predicted dFEV1 value does change with changes to Dos.
+
+
+I have pretty thoroughly tested the model code, but am less certain about the fitting procedure. 
+I would guess if there is an issue with the code, it is in the fitting code in `R/fit_funs.R`.
+
+
+
+
+
+
+

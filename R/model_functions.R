@@ -9,7 +9,7 @@ UOS = function(O3, Ve, t, # inputs
                Dos) #parameter
     # Vectorized means for calc UOS over a number of t timepoints
 {
-    DR / (1 + exp(-20 * (t - (Dos * t / CD))))
+    DR / (1 + exp(-20 * (t - (Dos * (t / CD)))))
 }
 
 deltaX = function(UOS, n_t = length(UOS), fev_base, #input
@@ -18,21 +18,22 @@ deltaX = function(UOS, n_t = length(UOS), fev_base, #input
     # Takes vectors of UOS and calculates FEV
 {
     r = (1 - exp(-K))
-    
+    ceoss = UOS / K
     x = numeric(n_t)
 
-    # Not right way to do this - every person starts with a baseline
+    # Every person starts with a baseline
     x[1] = fev_base
     
     if(n_t > 1)
         for(i in 2:n_t)
-            x[i] = x[i-1] + (((UOS[i - 1] / K) - x[i - 1]) * r)
+            # sum as we go
+            x[i] = x[i-1] + ((ceoss[i - 1] - x[i - 1]) * r)
     
     x
 }
 
 FEV1 = function(dX, A){
-    dX * A
+    dX * A 
 }
 
 experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
@@ -65,7 +66,7 @@ cuml_integral = function(x, t)
 
 ################################################################################
 # From McDonnell et al, 2013
-
+if(FALSE){
 FEV2 = function(Ui, M)
     # Non-linear form of the model
     # The E term is error, modeled elsewhere
@@ -82,3 +83,4 @@ M = function(b1, b2, b3, b4, X, age, bmi)
 }
 
               
+}
