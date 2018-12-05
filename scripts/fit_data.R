@@ -11,10 +11,42 @@ d = readExp(f)
 
 d = lapply(d, deltaFEV1)
 
-fit = optim(list(Dos = 1, K = 0.040, A = -0.040), fit_FEV1b,
+fit = optim(list(Dos = 1000, K = 0.040, A = -0.040), fit_FEV1b,
             d = d, method = "L-BFGS-B",
             lower = c(5,log(2)/1000, -0.15),
             upper = c(2500, log(2)/1, 0))
+
+
+fit2 = optim(list(Dos = 1000, K = 0.040, A = -0.040, sigma = 0.25), fit_FEV1b,
+             d = d, cost = "loglik",
+             method = "L-BFGS-B",
+            lower = c(5,log(2)/1000, -0.15),
+            upper = c(2500, log(2)/1, 0))
+# Confirmed - get similar answers regardless of cost function (good sanity check)
+
+# Grid search over values of Dos
+dos = exp(seq(1,9, length.out = 20))
+pars = c(0.69, -0.0135)
+
+ans = sapply(dos, function(x) fit_FEV1b(pars = c(x, pars), d = d))
+
+plot(ans ~ dos, type = "b",
+     xlab = "'Dos' value",
+     ylab = "Cost",
+     main = "SSE cost")
+text(y = pretty(ans)[2], x = 800,
+     paste(c("K =", "A ="), pars, collapse = "\n"), adj = c(0,0))
+
+# Sanity check - should be similar
+ans2 = sapply(dos, function(x) fit_FEV1b(pars = c(x, pars, 0.5), d = d, cost = "loglik"))
+
+plot(ans2 ~ dos, type = "b",
+     xlab = "'Dos' value",
+     ylab = "Cost",
+     main = "Log-likelihood cost")
+text(y = pretty(ans2)[2], x = 800,
+     paste(c("K =", "A ="), pars, collapse = "\n"), adj = c(0,0))
+# Similar responses - confirmed
 
 i = sapply(d, function(x) unique(x$person))
 

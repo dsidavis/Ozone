@@ -21,31 +21,32 @@ SSE = function(x, y)
     (x - y) ^ 2
 }
 
-loglike = function(x)
+loglik = function(x, y, sigma)
 {
+    if(sigma <= 0) return(NA)
     # finish this later
-    # dnorm()
+    -sum(dnorm(y, x, sigma, log = TRUE))
 }
 
 
-fit_FEV1 = function(pars, df)
+fit_FEV1 = function(pars, df, cost_fun = c("sse", "loglik"))
 {
     pred = get_FEV1_prediction(df, Dos = pars[1], K = pars[2], A = pars[3])
-    # browser()
-    
-    # ans = sapply(seq(nrow(pred)), function(i){
-        # get_error(pred[i,], df$FEV1[df$person == i])
+    if(cost_fun == "loglik" & length(pars) != 4)
+        stop("To fit with loglik, sigma must be the 4th element in pars")
 
-    # })
-    
-    sum(SSE(pred, df$dFEV1), na.rm = TRUE)
+    i = !is.na(df$dFEV1)
+    # Just trying out the switch() fun
+    switch(cost_fun,
+           sse = sum(SSE(pred[i], df$dFEV1[i]), na.rm = TRUE),
+           loglik = sum(loglik(pred[i], df$dFEV1[i], pars[4])))
 }
 
 
-fit_FEV1b = function(pars, d)
+fit_FEV1b = function(pars, d, cost = "sse")
 
 {
-    sum(sapply(d, function(x, pars) fit_FEV1(pars, df = x), pars = pars), na.rm = TRUE)
+    sum(sapply(d, function(x, pars) fit_FEV1(pars, df = x, cost_fun = cost), pars = pars), na.rm = TRUE)
 }
 
 fit_FEV_person = function(pars, d)
