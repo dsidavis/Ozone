@@ -61,7 +61,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 cuml_integral = function(x, t)
     # Uses the trapzoid - integral approx. over a vector of x and t vals
 {
-    cumsum((c(0,x[-length(x)]) + x) * (c(0,diff(t))/2))
+    cumsum((c(0,x[-length(x)]) + x) / 2 * (diff(c(0,t))))
 }
 
 ################################################################################
