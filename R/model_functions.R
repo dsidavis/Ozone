@@ -5,7 +5,7 @@
 
 UOS = function(O3, Ve, t, # inputs
                DR = O3 * Ve * 1.96,
-               CD = cuml_integral(DR, t),
+               CD = cuml_integral(DR, t),  # corresponds to eqn 1b
                Dos) #parameter
     # Vectorized means for calc UOS over a number of t timepoints
 {
@@ -61,7 +61,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 cuml_integral = function(x, t)
     # Uses the trapzoid - integral approx. over a vector of x and t vals
 {
-    cumsum((c(0,x[-length(x)]) + x) / 2 * t)
+    cumsum((c(0, x[ - length(x) ]) + x) / 2 * t)
 }
 
 ################################################################################
