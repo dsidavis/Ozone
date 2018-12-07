@@ -5,7 +5,7 @@
 
 UOS = function(O3, Ve, t, # inputs
                DR = O3 * Ve * 1.96,
-               CD = cuml_integral(DR, t),
+               CD = cumsum(rep(DR, length(t))),
                Dos) #parameter
     # Vectorized means for calc UOS over a number of t timepoints
 {
@@ -43,14 +43,19 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 
 {
     dFEV1 = numeric(length(t_stop))
-    x_last = 0 # start at 0 delta FEV1
-
+    x_previous = cd_previous = 0 # start at 0 delta FEV1
+    
     if(t_stop[1] != 0)
         t_stop = c(0, t_stop)
     
     for(i in seq(length(t_stop) - 1)) {
         t = t_stop[i]+1:t_stop[i+1]
-        tmp = deltaX(UOS(O3[i], Ve[i], t, Dos = Dos), fev_base = x_last, K = K)
+        dr = O3[i] * Ve[i] * 1.96
+        cd = cd_previous + cumsum(rep(dr, length(t)))
+        uos = UOS(O3[i], Ve[i], t, DR = dr, CD = cd, Dos = Dos)
+        tmp = deltaX(uos, fev_base = x_previous, K = K)
+        cd_previous = cd[length(cd)]
+        # browser()
         x_last = dFEV1[i] = tmp[length(tmp)]
     }
     
