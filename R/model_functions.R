@@ -3,6 +3,17 @@
 ################################################################################
 # From Schelegle et al.
 
+UOS2 = function(O3, Ve, t, # inputs
+                DR = O3 * Ve * 1.96,
+                FrDos = DR / Dos,
+                CumFrDos = cumsum(rep(FrDos, length(t))),
+                Dos) #parameter
+    # Vectorized means for calc UOS over a number of t timepoints
+{
+    
+    DR / (1 + exp(-20 * (t - (t / CumFrDos))))
+}
+
 UOS = function(O3, Ve, t, # inputs
                DR = O3 * Ve * 1.96,
                CD = cumsum(rep(DR, length(t))),
@@ -43,7 +54,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 
 {
     dFEV1 = numeric(length(t_stop))
-    x_previous = cd_previous = 0 # start at 0 delta FEV1
+    x_previous = FrDos_previous = 0 # start at 0 delta FEV1
     
     if(t_stop[1] != 0)
         t_stop = c(0, t_stop)
@@ -51,10 +62,11 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     for(i in seq(length(t_stop) - 1)) {
         t = t_stop[i]+1:t_stop[i+1]
         dr = O3[i] * Ve[i] * 1.96
-        cd = cd_previous + cumsum(rep(dr, length(t)))
-        uos = UOS(O3[i], Ve[i], t, DR = dr, CD = cd, Dos = Dos)
+        FrDos = dr / Dos
+        CumFrDos = FrDos_previous + cumsum(rep(FrDos, length(t)))
+        uos = UOS2(O3[i], Ve[i], t, DR = dr, CumFrDos = CumFrDos, Dos = Dos)
         tmp = deltaX(uos, fev_base = x_previous, K = K)
-        cd_previous = cd[length(cd)]
+        FrDos_previous = CumFrDos[length(CumFrDos)]
         # browser()
         x_last = dFEV1[i] = tmp[length(tmp)]
     }
