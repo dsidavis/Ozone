@@ -7,12 +7,34 @@ source("R/model_functions.R")
 
 time = c(55, 115, 180, 270, 330, 395)
 
-o3 = c(0, 0.08, 0.1)
+o3 = rep(c(0.001, 0.08, 0.1), 3)
 
 ve = rnorm(n = length(time), mean = 40, sd = 5)
 
 dos = 1050 # mean of m/f from paper
 
-uos = UOS(o3[2], ve, time, Dos = dos)
 
-FEV(UOS = uos, K = 0.2, A = -0.02, fev_base = 4.6)
+experimentFEV1(o3, ve, time, Dos = dos, K = 0.69, A = -0.013)
+
+# Attempt to duplicate the Excel spreadsheet - "Pred modV5.xlsx"
+# Cols AC - AH
+#
+
+time = c(0,50, 60, 110, 120, 170, 215, 265, 275, 325, 335, 385, 399)
+         
+o3 = c(0.0005, 0.0005, 0.0004, 0.0004, 0.0005, 0.0005, 0.0005, 0.0005,
+       0.0006, 0.0006, 0.0005, 0.0005)
+
+ve = rep(c(38.3, 15.079), 6)
+
+experimentFEV1(o3, ve, time, Dos = 1400, A = -0.0246633, K = 35/0.693)
+# Appears to give exact same numbers
+# Now one with change in dFEV1
+
+o3 = c(0.0793933333, 0.0793933333, 0.07981, 0.07981,
+       0.08029, 0.08029,
+       0.07958, 0.07958,
+       0.0803966666666, 0.0803966666666,
+       0.07977333333333, 0.07977333333333) 
+
+ans = experimentFEV1(o3, ve, time, Dos = 1400, A = -0.0246633, K = 0.693/35)

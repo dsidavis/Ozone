@@ -53,14 +53,14 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     # 
 
 {
-    dFEV1 = numeric(length(t_stop))
+    dFEV1 = numeric(length(t_stop) - 1)
     x_previous = FrDos_previous = 0 # start at 0 delta FEV1
     
     if(t_stop[1] != 0)
         t_stop = c(0, t_stop)
     
     for(i in seq(length(t_stop) - 1)) {
-        t = t_stop[i]+1:t_stop[i+1]
+        t = (t_stop[i]+1):(t_stop[i+1])
         dr = O3[i] * Ve[i] * 1.96
         FrDos = dr / Dos
         CumFrDos = FrDos_previous + cumsum(rep(FrDos, length(t)))
@@ -68,7 +68,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
         tmp = deltaX(uos, fev_base = x_previous, K = K)
         FrDos_previous = CumFrDos[length(CumFrDos)]
         # browser()
-        x_last = dFEV1[i] = tmp[length(tmp)]
+        x_previous = dFEV1[i] = tmp[length(tmp)]
     }
     
     dFEV1 * A
