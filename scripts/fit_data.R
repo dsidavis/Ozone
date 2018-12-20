@@ -11,18 +11,23 @@ d = readExp(f)
 
 d = lapply(d, deltaFEV1)
 
-fit = optim(list(Dos = 3500, K = 0.020, A = -0.020), fit_FEV1b,
+fit = optim(list(Dos = 1000, K = 0.2, A = -0.020), fit_FEV1b,
             d = d,
-            method = "L-BFGS-B",
-            lower = c(5,log(2)/1000, -0.15),
-            upper = c(2500, log(2)/1, 0))
+            # method = "L-BFGS-B",
+            # lower = c(5,log(2)/1000, -0.15),
+            # upper = c(2500, log(2)/1, 0),
+            control = list(parscale = c(1000, 0.1, 0.01),
+                           trace = 6))
 
 
-fit2 = psoptim(list(Dos = 1100, K = 0.040, A = -0.040, sigma = 0.25), fit_FEV1b,
-             d = d, cost = "loglik")
+fit2 = optim(list(Dos = 1100, K = 0.040, A = -0.040, sigma = 0.25), fit_FEV1b,
+             d = d, cost = "loglik",
+             control = list(trace = 6))
            #  method = "L-BFGS-B",
            # lower = c(5,log(2)/1000, -0.15),
            # upper = c(2500, log(2)/1, 0))
+fit3 = psoptim(list(Dos = 1100, K = 0.040, A = -0.040, sigma = 0.25), fit_FEV1b,
+             d = d, cost = "loglik")
 # Confirmed - get similar answers regardless of cost function (good sanity check)
 
 # Grid search over values of Dos
@@ -56,10 +61,13 @@ i = sapply(d, function(x) unique(x$person))
 
 fit2 = lapply(unique(i), function(j){
     tmp = d[i == j]
-    optim(c(Dos = 500, K = 0.020, A = -0.020), fit_FEV1b,
-          d = tmp, method = "L-BFGS-B",
-          lower = c(5,log(2)/1000, -0.15),
-          upper = c(2500, log(2)/1, 0))
+    psoptim(c(Dos = 1000, K = 0.020, A = -0.020), fit_FEV1b,
+          d = tmp,
+          # method = "L-BFGS-B",
+          # lower = c(5,log(2)/1000, -0.15),
+          # upper = c(2500, log(2)/1, 0),
+          control = list(parscale = c(1000, 0.01, 0.1)))
 })
 
 summary(do.call(rbind, lapply(fit2, '[[', "par")))
+summary(do.call(rbind, lapply(fit2, '[[', "value")))
