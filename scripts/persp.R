@@ -5,10 +5,12 @@
 # with 100^3 rows corresponding  to a grid of 100 unique values for each
 # of the 3 variables DOS, K and A. The FEV1 value is the Sum of Squared errors.
 
-p = readRDS("FinerGrain.rds")
+rds = "scripts/VeryFineGrained_200.rds"
+#rds = "FinerGrain.rds"
+p = readRDS(rds)
 
 # keep only the rows that are within 5% of the minumum
-w = p$FEV1 < min(p$FEV1)*1.05
+w = p$SSE < min(p$SSE)*1.05
 # .8% of the values are within 5%
 pm = p[w,]
 
@@ -19,8 +21,8 @@ plot(density(pm$FEV1), xlim = range(pm$FEV1))
 
 
 plot(density(pm$DOS))
-[52:12] 116> plot(density(pm$DOS)); rug(pm$DOS)
-[52:20] 118> plot(FEV1 ~ DOS, pm)
+plot(density(pm$DOS)); rug(pm$DOS)
+plot(FEV1 ~ DOS, pm)
 
 
 # Turn the pm data frame into a 3-dimensional array of SSE values. This is for use with persp().
@@ -52,5 +54,8 @@ ggplot(pm) + geom_point(aes(x = DOS, y = FEV1, color = A))
 
 
 
+library(plot3D)
 #with(pm, scatter3D(DOS, K, A, bty = "g", pch = 12, col = gg.col(100)))
-with(pm, scatter3D(DOS, K, A, bty = "g", pch = 12, colvar = FEV1, xlab = "DOS", ylab = "K", zlab = "A"))
+with(pm, scatter3D(DOS, K, A, bty = "g", pch = 12, colvar = SSE, xlab = "DOS", ylab = "K", zlab = "A"))
+
+with(pm, scatter3D(DOS, K, A, bty = "g", pch = 12, colvar = SSE, xlab = "DOS", ylab = "K", zlab = "A", phi = 10, theta = 10))
