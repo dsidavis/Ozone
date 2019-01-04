@@ -5,7 +5,7 @@
 # with 100^3 rows corresponding  to a grid of 100 unique values for each
 # of the 3 variables DOS, K and A. The FEV1 value is the Sum of Squared errors.
 
-rds = "scripts/VeryFineGrained_200.rds"
+rds = "~/VeryFineGrained_200.rds"
 #rds = "FinerGrain.rds"
 p = readRDS(rds)
 
@@ -14,7 +14,7 @@ w = p$SSE < min(p$SSE)*1.05
 # .8% of the values are within 5%
 pm = p[w,]
 
-plot(density(pm$FEV1), xlim = range(pm$FEV1))
+plot(density(pm$SSE), xlim = range(pm$SSE))
 
 # Considering the range of values for SSE (FEV1) (2.11 to 13 million)
 # the range we see within 5% of the minimum is very small. So 8000 values within .1 of the minimum.
@@ -22,7 +22,7 @@ plot(density(pm$FEV1), xlim = range(pm$FEV1))
 
 plot(density(pm$DOS))
 plot(density(pm$DOS)); rug(pm$DOS)
-plot(FEV1 ~ DOS, pm)
+plot(SSE ~ DOS, pm)
 
 
 # Turn the pm data frame into a 3-dimensional array of SSE values. This is for use with persp().
@@ -37,7 +37,7 @@ a = array(as.numeric(NA), sapply(u, length), dimnames = u)
 # this to set the FEV1 value for each row in pm into the corresponding cell in a.
 i = do.call(cbind, lapply(pm[1:3], formatC, 8))
 
-a[i] = pm$FEV1
+a[i] = pm$SSE
 
 par(mfrow = c(3, 5))
 invisible(sapply(1:dim(a)[3], function(i) persp(a[,,i], xlab = "A", main = dimnames(a)[[3]][i])))
@@ -45,12 +45,12 @@ invisible(sapply(1:dim(a)[3], function(i) persp(a[,,i], xlab = "A", main = dimna
 
 
 
-plot(FEV1 ~ DOS, pm, col = heat.colors(10)[ cut(K, 10) ])
+plot(SSE ~ DOS, pm, col = heat.colors(10)[ cut(K, 10) ])
 
 
-ggplot(pm) + geom_point(aes(x = DOS, y = FEV1, color = K))
+ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = K))
 
-ggplot(pm) + geom_point(aes(x = DOS, y = FEV1, color = A))
+ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = A))
 
 
 
