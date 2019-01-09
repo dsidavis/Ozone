@@ -8,7 +8,7 @@ d = readExp(f)
 d = lapply(d, deltaFEV1)
 
 
-numIntervals = 50
+numIntervals = 200
 dos = seq(5, 2500, length.out = numIntervals)
 dos = exp(seq(1,9, length.out = numIntervals))
 K = seq(log(2)/1000, log(2)/1, length.out = numIntervals)
