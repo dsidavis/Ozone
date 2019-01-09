@@ -3,20 +3,9 @@
 ################################################################################
 # From Schelegle et al.
 
-UOS2 = function(O3, Ve, t, # inputs
-                DR = O3 * Ve * 1.96,
-                FrDos = DR / Dos,
-                CumFrDos = cumsum(rep(FrDos, length(t))),
-                Dos) #parameter
-    # Vectorized means for calc UOS over a number of t timepoints
-{
-    
-    DR / (1 + exp(-20 * (t - (t / CumFrDos))))
-}
-
 UOS = function(O3, Ve, t, # inputs
                DR = O3 * Ve * 1.96,
-               CD = cumsum(rep(DR, length(t))),
+               CD = cuml_integral(DR, t),  # corresponds to eqn 1b
                Dos) #parameter
     # Vectorized means for calc UOS over a number of t timepoints
 {
@@ -53,22 +42,16 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     # 
 
 {
-    dFEV1 = numeric(length(t_stop) - 1)
-    x_previous = FrDos_previous = 0 # start at 0 delta FEV1
-    
+    dFEV1 = numeric(length(t_stop))
+    x_last = 0 # start at 0 delta FEV1
+
     if(t_stop[1] != 0)
         t_stop = c(0, t_stop)
     
     for(i in seq(length(t_stop) - 1)) {
-        t = (t_stop[i]+1):(t_stop[i+1])
-        dr = O3[i] * Ve[i] * 1.96
-        FrDos = dr / Dos
-        CumFrDos = FrDos_previous + cumsum(rep(FrDos, length(t)))
-        uos = UOS2(O3[i], Ve[i], t, DR = dr, CumFrDos = CumFrDos, Dos = Dos)
-        tmp = deltaX(uos, fev_base = x_previous, K = K)
-        FrDos_previous = CumFrDos[length(CumFrDos)]
-        # browser()
-        x_previous = dFEV1[i] = tmp[length(tmp)]
+        t = t_stop[i]+1:t_stop[i+1]
+        tmp = deltaX(UOS(O3[i], Ve[i], t, Dos = Dos), fev_base = x_last, K = K)
+        x_last = dFEV1[i] = tmp[length(tmp)]
     }
     
     dFEV1 * A
@@ -78,6 +61,7 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 cuml_integral = function(x, t)
     # Uses the trapzoid - integral approx. over a vector of x and t vals
 {
+#    cumsum((c(x[1], 2*x[-c(1:length(x))] + x[length(x)]) * (diff(c(0,t))/2))
     cumsum((c(0,x[-length(x)]) + x) / 2 * (diff(c(0,t))))
 }
 

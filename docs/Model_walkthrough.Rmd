@@ -122,6 +122,10 @@ fit2 = lapply(unique(i), function(j){
 summary(do.call(rbind, lapply(fit2, '[[', "par")))
 ```
 
+<-- Warning about
+     bounds can only be used with method L-BFGS-B (or Brent)
+-->
+
 # Current issues
 
 Currently, the fit returns the starting value of Dos, regardless of starting value.
