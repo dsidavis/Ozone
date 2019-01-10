@@ -4,11 +4,12 @@
 get_FEV1_prediction = function(df, Dos, K, A)
 
 {
-    dd = by(df, list(df$person, df$protocolNum), function(x){
+    # dd = by(df, list(df$person, df$protocolNum), function(x){
         # browser()
-        experimentFEV1(x$O3, x$VE, x$endTime, Dos = Dos, K = K, A = A)})
+        experimentFEV1(df$O3, df$VE, df$endTime, Dos = Dos, K = K, A = A)
+    # })
 
-    do.call(rbind, dd)
+    # do.call(rbind, dd)
 }
 
 get_error = function(pred, obs, fun = MSE)
