@@ -1,7 +1,8 @@
-source("R/model_functions.R")
-# source("R/sim_funs.R")
+## Tests that the model functions return exactly the same numbers
+## as Ed's Excel sheet "Pred modV5.xlsx"
+## Cols AU - BG
 
-# Using z4901_HR7PRED.xls as an example
+source("R/model_functions.R")
 
 time = c(0,50, 60, 110, 120, 170, 215, 265, 275, 325, 335, 385, 399)
 ve = rep(c(38.3, 15.0792453), 6)
