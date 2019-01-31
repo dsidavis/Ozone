@@ -19,3 +19,11 @@ expected_ans = c(0, 0, 0, 0, 0, 0, -1.72087088354959e-94, -1.90017077526133e-49,
 )
 
 stopifnot(all.equal(ans,expected_ans))
+
+# O3 is too low to cause reaction
+o3 = c(0.0005, 0.0005, 0.0004, 0.0004, 0.0005, 0.0005, 0.0005, 0.0005,
+       0.0006, 0.0006, 0.0005, 0.0005)
+
+ans2 = experimentFEV1(o3, ve, time, Dos = 1400, A = -0.0246633, K = log(2)/35)
+
+stopifnot(all(ans2 == 0))
