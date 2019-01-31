@@ -18,4 +18,4 @@ expected_ans = c(0, 0, 0, 0, 0, 0, -1.72087088354959e-94, -1.90017077526133e-49,
 -4.43485912124668, -4.19394040921599, -6.22098178707323, -5.47539345520911
 )
 
-stopifnot(all(ans == expected_ans))
+stopifnot(all.equal(ans,expected_ans))
