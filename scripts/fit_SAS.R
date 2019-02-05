@@ -1,7 +1,7 @@
 source("R/model_functions.R")
 source("R/fit_funs.R")
 
-sas = readRDS("Ozone_data_from_SAS.rds")
+sas = readRDS("data/Ozone_data_from_SAS.rds")
 if(FALSE)
     # Which have dFEV other than 0
 i = sapply(sas[[3]], function(x) any(x$dFEV1 != 0, na.rm = TRUE))
