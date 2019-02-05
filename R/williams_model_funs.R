@@ -19,7 +19,7 @@ M = function(b1, b2, b3, b4, X, age, bmi)
               
 }
 
-will_model = function(Cm, Cs, Vs, BSA, Time)
+get_XB5 = function(Cm, Cs, Vs, BSA, Time)
 {
     
     # Cm = Ozone concentration
@@ -43,12 +43,17 @@ will_model = function(Cm, Cs, Vs, BSA, Time)
                                         (B5^2 * Ta^2)) * exp(-B5 * TD)) -
                                      (-2 + (2 * B5 * Tb) - (B5^2 * Tb^2)))
     }
+    return(XB5)
+}
+
+predict_dFEV1 = function(XB5, B1, B2, B3, B4, B8, B9)
+{
     XB5G = (XB5 - B9) * (B9 <= XB5)
 
     F1 = B1 + B2 * (age-23.8) + B8 * (BMI - 23.1)
     T1 = 1 + B4 * exp(-B3 * XB5G)
     T2 = 1 + B4
     Median = F1 * (1/T1 - 1/T2)
-    
+    return(Median)
 }
 
