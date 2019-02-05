@@ -81,23 +81,3 @@ cuml_integral = function(x, t)
     cumsum((c(0,x[-length(x)]) + x) / 2 * (diff(c(0,t))))
 }
 
-################################################################################
-# From McDonnell et al, 2013
-if(FALSE){
-FEV2 = function(Ui, M)
-    # Non-linear form of the model
-    # The E term is error, modeled elsewhere
-{
-    exp(Ui) * M
-}
-
-
-M = function(b1, b2, b3, b4, X, age, bmi)
-    # Calculates the M values with covars
-{
-    (b1 + b2 * (age - 23.8) + b8 * (bmi - 23.1)) / (1 + b4 * exp(-b3 * X)) -
-        (b1 + b2 * (age -23.8) + b8 * (bmi - 23.1)) / (1 + b4)
-}
-
-              
-}
