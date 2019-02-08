@@ -1,4 +1,18 @@
+/* Modeling response to Ozone exposure following 
+   "Ozone exposure-response model for lung function
+   changes: an alternate variability structure" (2013)
+   by:
+   William F. McDonnell, Paul W. Stewart & Marjo V. Smith
+
+   Model coded in Stan by: Matt Espe
+   7 Feb 2019
+ */
+
+
 functions{
+  /* 
+	 Function to get change in intermediate variable X by time
+   */
   vector get_XB5(vector Cm, vector Cs, vector Vs, vector Ve,
 				 real BSA, vector Time,
 				 real B5, real B6){
@@ -28,6 +42,10 @@ functions{
 	return XB5;
   }
 
+  /*
+	Takes change in intermediate variable X, and adds adjustments for 
+	age and BMI, each centered to their mean values.
+   */
   vector get_pop_median (vector XB5, real age_c, real BMI_c, 
 						 real B1, real B2, real B3,
 						 real B4, real B8, real B9) {
@@ -72,6 +90,7 @@ data{
 }
 
 transformed data{
+  // Center each according to values in paper
   vector[n_ind] age_c = age - 23.8;
   vector[n_ind] BMI_c = BMI - 23.1;
 }
