@@ -1,8 +1,8 @@
 functions{
   vector get_XB5(vector Cm, vector Cs, vector Vs, vector Ve,
-				 vector BSA, vector Time,
+				 real BSA, vector Time,
 				 real B5, real B6){
-	int N = size(Cm);
+	int N = dims(Cm)[1];
 	vector[N] XB5 = rep_vector(0.0, N);
 	real Vm;
 	real Ta;
@@ -11,17 +11,17 @@ functions{
 	real XB5_previous;
 	
 	for(j in 1:N){
-	  Vm = (Ve[j] ^ B6) / (BSA[j] ^ B6);
+	  Vm = (Ve[j] ^ B6) / (BSA ^ B6);
 	  Ta = j > 1 ? Time[j-1] : 0.0;
 	  Tb = Time[j];
 	  TD = (Tb - Ta);
 	  XB5_previous = j > 1 ? XB5[j-1] : 0;
 	  
 	  XB5[j] = XB5_previous * (exp(-B5 * TD)) +
-		(Cm * Vm * (B5^-1)) * (1 - exp(-B5 * TD)) +
-		(Cm * Vs * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
-		(Cs * Vm * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
-		(Cs * Vs * (B5^-3)) * (((-2 + (2 * B5 * Ta) -
+		(Cm[j] * Vm * (B5^-1)) * (1 - exp(-B5 * TD)) +
+		(Cm[j] * Vs[j] * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
+		(Cs[j] * Vm * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
+		(Cs[j] * Vs[j] * (B5^-3)) * (((-2 + (2 * B5 * Ta) -
 								 (B5^2 * Ta^2)) * exp(-B5 * TD)) -
 							   (-2 + (2 * B5 * Tb) - (B5^2 * Tb^2)));
     }
@@ -31,7 +31,7 @@ functions{
   vector get_pop_median (vector XB5, real age_c, real BMI_c, 
 						 real B1, real B2, real B3,
 						 real B4, real B8, real B9) {
-	int N = size(XB5);
+	int N = dims(XB5)[1];
 	vector[N] XB5G;
 	real F1 = B1 + B2 * age_c + B8 * BMI_c;
 	vector[N] T1;
@@ -41,8 +41,9 @@ functions{
 	for(n in 1:N)
 	  XB5G[n] = XB5[n] <= B9 ? XB5[n] - B9 : 0;
 
-	T1 = 1 + B4 * exp(-B3 .*XB5G);
-	Median = F1 * (1/T1 - 1/T2);
+	T1 = 1 + B4 * exp(-B3 * XB5G);
+	for(n in 1:N)
+	  Median[n] = F1 * (1/T1[n] - 1/T2);
 	
 	return Median;
   }
@@ -64,10 +65,10 @@ data{
   vector[max_timepts] Vs[n_obs];
   vector[max_timepts] Cm[n_obs];
   vector[max_timepts] Cs[n_obs];
-  vector[max_timepts] BSA[n_obs];
   vector[max_timepts] Time[n_obs];
-  vector[max_n_dFEV1] dFEV1_measure_idx[n_obs];
+  int dFEV1_measure_idx[n_obs, max_n_dFEV1];
   vector[max_n_dFEV1] dFEV1[n_obs];
+  real<lower = 0> sigma_U; // prior sd of random effects
 }
 
 transformed data{
@@ -85,10 +86,13 @@ parameters{
   real B8;
   real B9;
   vector[n_ind] U; // random effects by ind.
+  real<lower = 0> sigma;
 }
 
 model{
-  
+  // distribution of ind. random effects
+  U ~ normal(0, sigma_U);
+
   for(n in 1:n_obs){
 	int idx = n_timepts[n];
 	vector[idx] XB5 = get_XB5(Cm[n][:idx], Cs[n][:idx],
@@ -97,10 +101,14 @@ model{
 									   B5, B6);
 	vector[idx] med = get_pop_median(XB5, age_c[ind[n]], BMI_c[ind[n]],
 											  B1, B2, B3, B4, B8, B9);
-	
 
+	int comp_idx[n_dFEV1[n]] = dFEV1_measure_idx[n][:n_dFEV1[n]];
+
+	// Likelihood
+	dFEV1[n][:n_dFEV1[n]] ~ normal(med[comp_idx] + U[ind[n]], sigma);
   }
 }
+
 generated quantities{
 
 }
