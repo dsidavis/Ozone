@@ -7,26 +7,47 @@
 
 functions{
 
-  real UOS(real DR, real CD, real Dos, real t) {
-	return (DR / (1 + exp(-20 * (t - (Dos * (t / CD))))));
-	  }
+  vector UOS(real DR, vector CumFrDos, real Dos, vector t) {
+	int n = dims(t)[1];
+	vector[n] UOS = DR / (1 + exp(-20 * (t - (t / CumFrDos))));
+	
+	return UOS;
+  }
   
-  real deltaX(real uos, real k, real x_prev){
-	return (x_prev + ((uos/k) - x_prev) * (1 - exp(-k)));
-	  }
+  vector deltaX(vector uos, real k, real x_prev){
+	int n = dims(uos)[1];
+	real r = (1 - exp(-k));
+	vector coess = uos / k;
+	vector x = rep_vector(0.0, n);
+
+	x[1] = x_prev;
+
+	if(n > 1)
+	  for(i in 2:n)
+		x[i] = x[i-1] + ((ceoss[i-1] - x[i-1]) * r);
+	
+	return x;
+  }
 
   vector experimentFEV1(vector o3, vector ve, int[] t_stop,
 						real dos, real k, real a){
 	int m = dims(o3)[1];
 	int n = max(t_stop);
-	vector[n] ans = rep_vector(0, n);
-	real x_last = 0;
-	int t = 1;
-	int cur_block = 1;
+	vector[n] dFEV1 = rep_vector(0, n);
+	real x_previous = 0;
 	real uos = 0;
 	real dr = 0;
 	real cd = 0;
-	
+
+	if(t_stop[1] != 0)
+	  t_stop = append_array(0.0, t_stop);
+
+	for(i in 1:(n - 1){
+		int n_t = t_stop[i+1] - t_stop[i]+1;
+		
+
+		
+	  }
 	while(cur_block <= m){
 	  while(t <= t_stop[cur_block]){
 		dr = o3[cur_block] * ve[cur_block] * 1.96;
