@@ -6,10 +6,20 @@
 */
 
 functions{
-
+  
+  vector seq(int start, int end){
+	int N = (1 + end) - start;
+	vector[N] x;
+	for(i in 1:N)
+	  x[i] = start + i - 1;
+	return x;	
+  }
+  
   vector UOS(real DR, vector CumFrDos, real Dos, vector t) {
 	int n = dims(t)[1];
-	vector[n] UOS = DR / (1 + exp(-20 * (t - (t / CumFrDos))));
+	vector[n] UOS;
+	for(i in 1:n)
+	  UOS[i] = DR / (1 + exp(-20 * (t[i] - (t[i] / CumFrDos[i]))));
 	
 	return UOS;
   }
@@ -17,8 +27,8 @@ functions{
   vector deltaX(vector uos, real k, real x_prev){
 	int n = dims(uos)[1];
 	real r = (1 - exp(-k));
-	vector coess = uos / k;
-	vector x = rep_vector(0.0, n);
+	vector[n] ceoss = uos / k;
+	vector[n] x = rep_vector(0.0, n);
 
 	x[1] = x_prev;
 
@@ -35,35 +45,28 @@ functions{
 	int n = max(t_stop);
 	vector[n] dFEV1 = rep_vector(0, n);
 	real x_previous = 0;
+	real FrDos;
+	real FrDos_previous = 0;
 	real uos = 0;
 	real dr = 0;
+	
 	real cd = 0;
 
-	if(t_stop[1] != 0)
-	  t_stop = append_array(0.0, t_stop);
-
-	for(i in 1:(n - 1){
-		int n_t = t_stop[i+1] - t_stop[i]+1;
+	for(i in 1:(n - 1)){
+	  int n_t = t_stop[i+1] - t_stop[i]+1;
+	  vector[n_t] t = seq(t_stop[i]+1, t_stop[i+1]);
+	  vector[n_t] CumFrDos;
+	  CumFrDos[1] = FrDos_previous;
+	  
+	  dr = o3[i] * ve[i] * 1.96;
+	  FrDos = dr / dos;
+	  for(j in 1:n_t)
+		CumFrDos[j] = FrDos_previous + FrDos * j;
+	  
 		
-
 		
-	  }
-	while(cur_block <= m){
-	  while(t <= t_stop[cur_block]){
-		dr = o3[cur_block] * ve[cur_block] * 1.96;
-		cd += dr;
-		uos = UOS(dr, cd, dos, t);
-		x_last = deltaX(uos, k, x_last);
-		ans[t] = x_last;
-		t += 1;
-	  }
-	  cur_block += 1;
 	}
-	
-	return(ans * a);
   }
-	
-  
 }
 
 data{
