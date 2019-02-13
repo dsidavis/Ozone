@@ -5,12 +5,13 @@
 # with 100^3 rows corresponding  to a grid of 100 unique values for each
 # of the 3 variables DOS, K and A. The FEV1 value is the Sum of Squared errors.
 
-rds = "~/VeryFineGrained_200.rds"
-#rds = "FinerGrain.rds"
+# rds = "~/VeryFineGrained_200.rds"
+rds = "grid.rds"
+                                        #rds = "FinerGrain.rds"
 p = readRDS(rds)
 
 # keep only the rows that are within 5% of the minumum
-w = p$SSE < min(p$SSE)*1.05
+w = p$SSE < min(p$SSE)*1.1
 # .8% of the values are within 5%
 pm = p[w,]
 
@@ -48,10 +49,14 @@ invisible(sapply(1:dim(a)[3], function(i) persp(a[,,i], xlab = "A", main = dimna
 plot(SSE ~ DOS, pm, col = heat.colors(10)[ cut(K, 10) ])
 
 
-ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = K))
+ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = K)) + scale_color_viridis_c()
 
 ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = A))
 
+ggplot(pm) + geom_point(aes(x = DOS, y = SSE, color = K)) + scale_color_viridis_c()
+ggplot(pm) + geom_point(aes(x = K, y = SSE, color = DOS)) + scale_color_viridis_c()
+ggplot(pm) + geom_point(aes(x = K, y = A, color = SSE)) + scale_color_viridis_c()
+ggplot(pm) + geom_point(aes(x = K, y = DOS, color = SSE)) + scale_color_viridis_c()
 
 
 library(plot3D)
