@@ -34,10 +34,6 @@ deltaX = function(UOS, n_t = length(UOS), fev_base, #input
     x
 }
 
-FEV1 = function(dX, A){
-    dX * A 
-}
-
 experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
     # O3, Ve are vectors with the measurement for the time interval
     # t_stop are the stop points (in min) for each associated interval, with t_stop[1] == 1
@@ -83,4 +79,9 @@ UOS = function(O3, Ve, t, # inputs
 {
     DR / (1 + exp(-20 * (t - (Dos * (t / CD)))))
 }
+
+FEV1 = function(dX, A){
+    dX * A 
+}
+
 }
