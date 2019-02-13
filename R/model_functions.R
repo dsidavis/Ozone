@@ -13,16 +13,7 @@ UOS2 = function(O3, Ve, t, # inputs
     
     DR / (1 + exp(-20 * (t - (t / CumFrDos))))
 }
-
-UOS = function(O3, Ve, t, # inputs
-               DR = O3 * Ve * 1.96,
-               CD = cumsum(rep(DR, length(t))),
-               Dos) #parameter
-    # Vectorized means for calc UOS over a number of t timepoints
-{
-    DR / (1 + exp(-20 * (t - (Dos * (t / CD)))))
-}
-
+ 
 deltaX = function(UOS, n_t = length(UOS), fev_base, #input
                K # parameters
                )
@@ -75,9 +66,21 @@ experimentFEV1 = function(O3, Ve, t_stop, Dos, K, A)
 }
 
 
+# Not Used
+if(FALSE){
 cuml_integral = function(x, t)
     # Uses the trapzoid - integral approx. over a vector of x and t vals
 {
     cumsum((c(0,x[-length(x)]) + x) / 2 * (diff(c(0,t))))
 }
 
+
+UOS = function(O3, Ve, t, # inputs
+               DR = O3 * Ve * 1.96,
+               CD = cumsum(rep(DR, length(t))),
+               Dos) #parameter
+    # Vectorized means for calc UOS over a number of t timepoints
+{
+    DR / (1 + exp(-20 * (t - (Dos * (t / CD)))))
+}
+}
