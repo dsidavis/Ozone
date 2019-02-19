@@ -13,7 +13,7 @@ functions{
   /* 
 	 Function to get change in intermediate variable X by time
    */
-  vector get_XB5(vector Cm, vector Cs, vector Vs, vector Ve,
+  vector get_XB5(vector Cm, vector Cs, real Vs, vector Ve,
 				 real BSA, vector Time,
 				 real B5, real B6){
 	int N = dims(Cm)[1];
@@ -33,9 +33,9 @@ functions{
 	  
 	  XB5[j] = XB5_previous * (exp(-B5 * TD)) +
 		(Cm[j] * Vm * (B5^-1)) * (1 - exp(-B5 * TD)) +
-		(Cm[j] * Vs[j] * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
+		(Cm[j] * Vs * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
 		(Cs[j] * Vm * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
-		(Cs[j] * Vs[j] * (B5^-3)) * (((-2 + (2 * B5 * Ta) -
+		(Cs[j] * Vs * (B5^-3)) * (((-2 + (2 * B5 * Ta) -
 								 (B5^2 * Ta^2)) * exp(-B5 * TD)) -
 							   (-2 + (2 * B5 * Tb) - (B5^2 * Tb^2)));
     }
@@ -80,7 +80,6 @@ data{
   vector[n_obs] BSA;
   // These are padded with zeros
   vector[max_timepts] Ve[n_obs];
-  vector[max_timepts] Vs[n_obs];
   vector[max_timepts] Cm[n_obs];
   vector[max_timepts] Cs[n_obs];
   vector[max_timepts] Time[n_obs];
@@ -91,8 +90,10 @@ data{
 
 transformed data{
   // Center each according to values in paper
+  real Vs = 0; // Confused about why this is hardcoded to == 0
   vector[n_ind] age_c = age - 23.8;
   vector[n_ind] BMI_c = BMI - 23.1;
+
 }
 
 parameters{
@@ -115,7 +116,7 @@ model{
   for(n in 1:n_obs){
 	int idx = n_timepts[n];
 	vector[idx] XB5 = get_XB5(Cm[n][:idx], Cs[n][:idx],
-									   Vs[n][:idx], Ve[n][:idx],
+									   Vs, Ve[n][:idx],
 									   BSA[ind[n]], Time[n][:idx],
 									   B5, B6);
 	vector[idx] med = get_pop_median(XB5, age_c[ind[n]], BMI_c[ind[n]],

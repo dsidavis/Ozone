@@ -14,16 +14,21 @@
 # vector[n_obs] BSA;
 # // These are padded with zeros
 # vector[max_timepts] Ve[n_obs];
-# vector[max_timepts] Vs[n_obs];
 # vector[max_timepts] Cm[n_obs];
 # vector[max_timepts] Cs[n_obs];
 # vector[max_timepts] Time[n_obs];
 # int dFEV1_measure_idx[n_obs, max_n_dFEV1];
 # vector[max_n_dFEV1] dFEV1[n_obs];
 # real<lower = 0> sigma_U; // prior sd of random effects
-
+source("R/readSAS.R")
 tars = list.files("~/Downloads", pattern = "*bdat$", full.names = TRUE)
 
 sas = lapply(tars, haven::read_sas)
+sas = lapply(sas, as.data.frame)
+
+debug(mungeSAS_forStan)
+ans = mungeSAS_forStan(sas[[1]])
+
+
 
 
