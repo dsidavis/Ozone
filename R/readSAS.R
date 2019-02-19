@@ -48,7 +48,7 @@ mungeSAS_forStan = function(df)
         apply(x, 2, function(x) sum(!is.na(x))))
     n_timepts = apply(do.call(rbind, n_timepts), 2, unique)
     t_vars = lapply(t_vars, trim_vars)
-
+    t_vars = lapply(t_vars, function(x) {x[is.na(x)] = 0 ; x})
     dFEV1 = collapse_results(dFEV1)
     dFEV1$DELFEV1[is.na(dFEV1$DELFEV1)] = 0 #Stan cannot handle NA
     
@@ -63,16 +63,15 @@ mungeSAS_forStan = function(df)
          n_dFEV1 = n_dFEV1,
          n_timepts = n_timepts,
          ind = to_id(ind_vars$ID),
-         age = ind_vars$AGE,
-         BMI = ind_vars$BMI,
-         BSA = ind_vars$BSA,
-         Ve = t_vars$Ve,
-         Cm = t_vars$Cm,
-         Cs = t_vars$Cs,
-         Time = t_vars$Time,
-         dFEV1_measure_idx = dFEV1$TIME_ID,
-         dFEV1 = dFEV1$DELFEV1)
-    
+         age = as.numeric(ind_vars$AGE),
+         BMI = as.numeric(ind_vars$BMI),
+         BSA = as.numeric(apply(t_vars$BSA, 2, function(x) unique(x[x!=0]))), 
+         Ve = t(as.matrix(t_vars$Ve)),
+         Cm = t(as.matrix(t_vars$O3_mean)),
+         Cs = t(as.matrix(t_vars$O3_slope)),
+         Time = t(as.matrix(t_vars$T)),
+         dFEV1_measure_idx = t(dFEV1$TIME_ID),
+         dFEV1 = t(dFEV1$DELFEV1))
 }
 
 to_id = function(x)

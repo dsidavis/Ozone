@@ -75,8 +75,8 @@ data{
   int n_dFEV1[n_obs]; // n dFEV1 measurements per obs
   int n_timepts[n_obs]; // n timepts per obs
   int ind[n_obs]; 
-  vector[n_ind] age;
-  vector[n_ind] BMI;
+  vector[n_obs] age;
+  vector[n_obs] BMI;
   vector[n_obs] BSA;
   // These are padded with zeros
   vector[max_timepts] Ve[n_obs];
@@ -91,8 +91,8 @@ data{
 transformed data{
   // Center each according to values in paper
   real Vs = 0; // Confused about why this is hardcoded to == 0
-  vector[n_ind] age_c = age - 23.8;
-  vector[n_ind] BMI_c = BMI - 23.1;
+  vector[n_obs] age_c = age - 23.8;
+  vector[n_obs] BMI_c = BMI - 23.1;
 
 }
 
@@ -117,10 +117,10 @@ model{
 	int idx = n_timepts[n];
 	vector[idx] XB5 = get_XB5(Cm[n][:idx], Cs[n][:idx],
 									   Vs, Ve[n][:idx],
-									   BSA[ind[n]], Time[n][:idx],
+									   BSA[n], Time[n][:idx],
 									   B5, B6);
-	vector[idx] med = get_pop_median(XB5, age_c[ind[n]], BMI_c[ind[n]],
-											  B1, B2, B3, B4, B8, B9);
+	vector[idx] med = get_pop_median(XB5, age_c[n], BMI_c[n],
+									 B1, B2, B3, B4, B8, B9);
 
 	int comp_idx[n_dFEV1[n]] = dFEV1_measure_idx[n][:n_dFEV1[n]];
 
