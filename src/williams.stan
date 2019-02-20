@@ -33,8 +33,8 @@ functions{
 	  
 	  XB5[j] = XB5_previous * (exp(-B5 * TD)) +
 		(Cm[j] * Vm * (B5^-1)) * (1 - exp(-B5 * TD)) +
-		(Cm[j] * Vs * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
-		(Cs[j] * Vm * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1-B5*Tb)) +
+		(Cm[j] * Vs * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1 -B5 * Tb)) +
+		(Cs[j] * Vm * (B5^-2)) * (((1 - B5 * Ta) * exp(-B5 * TD)) - (1 -B5 * Tb)) +
 		(Cs[j] * Vs * (B5^-3)) * (((-2 + (2 * B5 * Ta) -
 								 (B5^2 * Ta^2)) * exp(-B5 * TD)) -
 							   (-2 + (2 * B5 * Tb) - (B5^2 * Tb^2)));
@@ -58,7 +58,6 @@ functions{
 	
 	for(n in 1:N)
 	  XB5G[n] = XB5[n] <= B9 ? XB5[n] - B9 : 0;
-
 	T1 = 1 + B4 * exp(-B3 * XB5G);
 	for(n in 1:N)
 	  Median[n] = F1 * (1/T1[n] - 1/T2);
@@ -97,35 +96,29 @@ transformed data{
 }
 
 parameters{
-  real B1;
-  real B2;
-  real B3;
-  real B4;
-  real B5;
-  real B6;
-  real B8;
-  real B9;
+  vector[9] B;
   vector[n_ind] U; // random effects by ind.
-  real<lower = 0> sigma;
+  real sigma;
 }
 
 model{
   // distribution of ind. random effects
   U ~ normal(0, sigma_U);
-
+  B ~ normal(0, 100);
+  
   for(n in 1:n_obs){
 	int idx = n_timepts[n];
 	vector[idx] XB5 = get_XB5(Cm[n][:idx], Cs[n][:idx],
 									   Vs, Ve[n][:idx],
 									   BSA[n], Time[n][:idx],
-									   B5, B6);
+									   B[5], B[6]);
 	vector[idx] med = get_pop_median(XB5, age_c[n], BMI_c[n],
-									 B1, B2, B3, B4, B8, B9);
+									 B[1], B[2], B[3], B[4], B[8], B[9]);
 
 	int comp_idx[n_dFEV1[n]] = dFEV1_measure_idx[n][:n_dFEV1[n]];
 
 	// Likelihood
-	dFEV1[n][:n_dFEV1[n]] ~ normal(med[comp_idx] + U[ind[n]], sigma);
+	dFEV1[n][:n_dFEV1[n]] ~ normal(med[comp_idx] * exp(U[ind[n]]), sigma);
   }
 }
 

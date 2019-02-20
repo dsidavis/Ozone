@@ -26,7 +26,7 @@ tars = list.files("~/Downloads", pattern = "*bdat$", full.names = TRUE)
 sas = lapply(tars, haven::read_sas)
 sas = lapply(sas, as.data.frame)
 
-debug(mungeSAS_forStan)
+# debug(mungeSAS_forStan)
 ans = mungeSAS_forStan(sas[[1]])
 
 
