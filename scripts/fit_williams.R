@@ -16,8 +16,13 @@ fit = optimizing(mod, data = ans, init = init_list, verbose = TRUE)
 
 fit = sampling(mod, data = ans, cores = 4)
 
-b = replicate(100, optimizing(mod, data = ans)$par[1:9])
-summary(b)
+
+
+b = replicate(50, optimizing(mod, data = ans,
+                             init = sapply(init_list, function(x)
+                                 rnorm(length(x), x, abs(x/10)),
+                                 simplify = FALSE))$par[1:9])
+summary(t(b))
 b = replicate(100, optimizing(mod, data = ans)$value)
 
 fit = optimizing(mod, data = ans, algorithm = "Fixed_param", init = init_list)
