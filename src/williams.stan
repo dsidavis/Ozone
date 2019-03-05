@@ -57,7 +57,7 @@ functions{
 	vector[N] Median;
 	
 	for(n in 1:N)
-	  XB5G[n] = XB5[n] <= B9 ? XB5[n] - B9 : 0;
+	  XB5G[n] = XB5[n] >= B9 ? XB5[n] - B9 : 0;
 	T1 = 1 + B4 * exp(-B3 * XB5G);
 	for(n in 1:N)
 	  Median[n] = F1 * (1/T1[n] - 1/T2);

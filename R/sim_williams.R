@@ -39,7 +39,7 @@ get_pop_median = function(XB5, age_c, BMI_c,
 
     Median = numeric(N)
 	XB5G = numeric(N)
-    XB5G[XB5 <= B9] = XB5[XB5 <= B9] - B9
+    XB5G[XB5 >= B9] = XB5[XB5 >= B9] - B9
     
 	T1 = 1 + B4 * exp(-B3 * XB5G)
 
