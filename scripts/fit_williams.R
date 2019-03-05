@@ -21,3 +21,6 @@ summary(b)
 b = replicate(100, optimizing(mod, data = ans)$value)
 
 fit = optimizing(mod, data = ans, algorithm = "Fixed_param", init = init_list)
+
+
+mod2 = 
