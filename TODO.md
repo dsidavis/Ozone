@@ -1,5 +1,18 @@
 # TODO
 
++ Update C code (src/deltaX.c, src/timeLoop.c) to reflect changes in R/model_functions.R
+
++ clean up the existing code in scripts
+
++ document the functions
+
++ turn repo into package
+
++ add code to compile the models on package install
+ 
++ write a vignette for Ed/others to get started
+
+
 + update testing scripts to reflect changes in function args
 
 + Check simultated data for similarity to observed data
