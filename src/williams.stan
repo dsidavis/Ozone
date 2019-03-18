@@ -123,5 +123,24 @@ model{
 }
 
 generated quantities{
+  real log_lik = 0;
+  real aic;
 
+  for(n in 1:n_obs){
+	int idx = n_timepts[n];
+	vector[idx] XB5 = get_XB5(Cm[n][:idx], Cs[n][:idx],
+									   Vs, Ve[n][:idx],
+									   BSA[n], Time[n][:idx],
+									   B[5], B[6]);
+	vector[idx] med = get_pop_median(XB5, age_c[n], BMI_c[n],
+									 B[1], B[2], B[3], B[4], B[8], B[9]);
+
+	int comp_idx[n_dFEV1[n]] = dFEV1_measure_idx[n][:n_dFEV1[n]];
+
+	// Likelihood
+	log_lik += normal_lpdf(dFEV1[n][:n_dFEV1[n]] | med[comp_idx] * exp(U[ind[n]]), sigma);
+  }
+  
+  // k = number of betas + number of random effects
+  aic = 2 * (8 + n_ind) - 2 * log_lik; 
 }
