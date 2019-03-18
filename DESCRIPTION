@@ -1,0 +1,13 @@
+Package: OzoneModeling
+Version: 0.1-0
+Title: Modeling frameworks for ozone exposure
+Description: Package provides a framework for modeling the effects of
+   ozone exposure on the change in FEV1 over time, using two different
+   models. 
+License: GPL
+Depends: methods
+Imports: rstan
+Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
+Author:  Matthew Espe, Duncan Temple Lang 
+
+

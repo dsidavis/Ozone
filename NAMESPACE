@@ -1,0 +1,5 @@
+useDynLib(OzoneModeling)
+
+importFrom("rstan", stan_model, optimizing)
+
+export(experimentFEV1, fit_FEV1, fitFEV1b)
