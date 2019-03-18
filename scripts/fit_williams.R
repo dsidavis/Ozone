@@ -1,6 +1,13 @@
 # Fit the model for McDonnel et al
 
-# SAS code for model:
+# SAS code for model can be found at the end of
+# William F. McDonnell, Paul
+# W. Stewart & Marjo V. Smith (2013)
+# Ozone exposure-response model for
+# lung function changes: an alternate variability structure,
+# Inhalation Toxicology, 25:6, 348-353, DOI:
+# 10.3109/08958378.2013.790523
+
 library(rstan)
 mod = stan_model("src/williams.stan")
 
@@ -23,8 +30,10 @@ fit = optimizing(mod, data = ans, init = init_list, verbose = TRUE)
 
 b = replicate(100, try({optimizing(mod, data = ans,
                              init = sapply(init_list, function(x)
-                                 rnorm(length(x), x, abs(x)),
+                                 rnorm(length(x), x, abs(x/8)),
                                  simplify = FALSE))}))
+
+b = replicate(100, try({optimizing(mod, data = ans)}))
 
 ww = do.call(rbind, b["par",])[,1:9]
 ww = cbind(ww, ll = unlist(b["value",]))

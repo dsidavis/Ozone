@@ -47,10 +47,7 @@ fit_FEV1 = function(pars, df, cost_fun = c("sse", "loglik"))
 fit_FEV1b = function(pars, d, cost = "sse")
 
 {
-    sum(sapply(d, function(x, pars) fit_FEV1(pars, df = x, cost_fun = cost), pars = pars), na.rm = TRUE)
+    sum(sapply(d, function(x, pars)
+        fit_FEV1(pars, df = x, cost_fun = cost), pars = pars), na.rm = TRUE)
 }
 
-fit_FEV_person = function(pars, d)
-{
-    
-}

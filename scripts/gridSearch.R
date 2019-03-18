@@ -1,4 +1,7 @@
 # Fit the data from a single sheet
+# Conducts a grid search of possible parameter values
+# For Ed's model
+
 source("R/fit_funs.R")
 source("R/model_functions.R")
 source("R/readUCD.R")

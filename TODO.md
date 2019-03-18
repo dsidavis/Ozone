@@ -12,12 +12,12 @@
  
 + write a vignette for Ed/others to get started
 
++ [done] update testing scripts to reflect changes in function args
 
-+ update testing scripts to reflect changes in function args
-
-+ Check simultated data for similarity to observed data
++ [done] Check simultated data for similarity to observed data
 
 + Resolve issues with fit not resolving to unique solution
+  - No easy fix. Need to do a grid search (Ed's model) or random inits and focus on most optimum values (Williams)
 
 + [done] make functions to read data into long format. We need each row to represent a single measurement, e.g.,
 

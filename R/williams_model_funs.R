@@ -1,23 +1,5 @@
 ################################################################################
 # From McDonnell et al, 2013
-if(FALSE){
-FEV2 = function(Ui, M)
-    # Non-linear form of the model
-    # The E term is error, modeled elsewhere
-{
-    exp(Ui) * M
-}
-
-
-M = function(b1, b2, b3, b4, X, age, bmi)
-    # Calculates the M values with covars
-{
-    (b1 + b2 * (age - 23.8) + b8 * (bmi - 23.1)) / (1 + b4 * exp(-b3 * X)) -
-        (b1 + b2 * (age -23.8) + b8 * (bmi - 23.1)) / (1 + b4)
-}
-
-              
-}
 
 get_XB5 = function(Cm, Cs, Vs, BSA, Time)
 {
@@ -57,3 +39,23 @@ predict_dFEV1 = function(XB5, B1, B2, B3, B4, B8, B9)
     return(Median)
 }
 
+################################################################################
+# Not used
+if(FALSE){
+FEV2 = function(Ui, M)
+    # Non-linear form of the model
+    # The E term is error, modeled elsewhere
+{
+    exp(Ui) * M
+}
+
+
+M = function(b1, b2, b3, b4, X, age, bmi)
+    # Calculates the M values with covars
+{
+    (b1 + b2 * (age - 23.8) + b8 * (bmi - 23.1)) / (1 + b4 * exp(-b3 * X)) -
+        (b1 + b2 * (age -23.8) + b8 * (bmi - 23.1)) / (1 + b4)
+}
+
+              
+}
