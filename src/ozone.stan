@@ -49,9 +49,9 @@ functions{
 	real FrDos;
 	real FrDos_previous = 0;
 	
-	for(i in 1:(n - 1)){
+	for(i in 1:(m - 1)){
 	  int n_t = t_stop[i+1] - t_stop[i]+1;
-	  vector[n_t] t = seq(t_stop[i]+1, t_stop[i+1]);
+	  vector[n_t] t = seq(t_stop[i], t_stop[i+1]);
 	  vector[n_t] CumFrDos;
 	  vector[n_t] uos;
 	  vector[n_t] x;
