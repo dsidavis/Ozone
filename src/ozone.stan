@@ -45,27 +45,28 @@ functions{
 	int n = max(t_stop);
 	vector[n] dFEV1 = rep_vector(0, n);
 	real x_previous = 0;
+	real dr = 0;
 	real FrDos;
 	real FrDos_previous = 0;
-	real uos = 0;
-	real dr = 0;
 	
-	real cd = 0;
-
 	for(i in 1:(n - 1)){
 	  int n_t = t_stop[i+1] - t_stop[i]+1;
 	  vector[n_t] t = seq(t_stop[i]+1, t_stop[i+1]);
 	  vector[n_t] CumFrDos;
-	  CumFrDos[1] = FrDos_previous;
-	  
+	  vector[n_t] uos;
+	  vector[n_t] x;
 	  dr = o3[i] * ve[i] * 1.96;
 	  FrDos = dr / dos;
 	  for(j in 1:n_t)
 		CumFrDos[j] = FrDos_previous + FrDos * j;
-	  
-		
-		
+
+	  uos = UOS(dr, CumFrDos, dos, t);
+	  x = deltaX(uos, k, x_previous);
+	  FrDos_previous = CumFrDos[n_t];
+	  x_previous = x[n_t];
+	  dFEV1[i] = x_previous;		
 	}
+	return dFEV1 * a;
   }
 }
 
