@@ -43,7 +43,7 @@ functions{
 						real dos, real k, real a){
 	int m = dims(o3)[1];
 	int n = max(t_stop);
-	vector[n] dFEV1 = rep_vector(0, n);
+	vector[m] dFEV1 = rep_vector(0, m);
 	real x_previous = 0;
 	real dr = 0;
 	real FrDos;
@@ -61,12 +61,14 @@ functions{
 		CumFrDos[j] = FrDos_previous + FrDos * j;
 	  /* print(CumFrDos); */
 	  uos = UOS(dr, CumFrDos, dos, t);
-	  print("UOS: ", uos);
+	  /* print("UOS: ", uos); */
 	  x = deltaX(uos, k, x_previous);
 	  FrDos_previous = CumFrDos[n_t];
+	  /* print("x = ", x); */
 	  x_previous = x[n_t];
 	  dFEV1[i] = x_previous;		
 	}
+	/* print("dFEV1 = ", dFEV1); */
 	return dFEV1 * a;
   }
 }
@@ -86,13 +88,21 @@ data{
   int Time[n_obs,max_timepts];
   int dFEV1_measure_idx[n_obs, max_n_dFEV1];
   vector[max_n_dFEV1] dFEV1[n_obs];
+  real k;
+  real dos;
+  real a;
+  real<lower = 0> sigma;
 }
-
+transformed data{
+  /* real k = 0.02; */
+  /* real dos = 900; */
+  /* real a = -0.02; */
+}
 parameters{
-  real<lower = 5, upper = 2500> dos;
-  real<lower = 0, upper = 0.7> k;
-  real<lower = -0.2, upper = 0> a;
-  real<lower=0> sigma;
+  /* real dos; */
+  /* real k; */
+  /* real a; */
+  /* real<lower=0> sigma; */
 }
 
 model{
@@ -104,15 +114,16 @@ model{
   for(n in 1:n_obs){
 	int idx = n_timepts[n];
 	int n_meas = max(Time[n][:idx]);
-	vector[n_meas] pred_fev1 = experimentFEV1(Cm[n][:idx],
+	vector[idx] pred_fev1 = experimentFEV1(Cm[n][:idx],
 							   Ve[n][:idx], Time[n][:idx],
 							   dos, k, a);
 	
-	int comp_idx[n_dFEV1[n]] = Time[n][:idx][dFEV1_measure_idx[n][:n_dFEV1[n]]];
-	/* print(pred_fev1[comp_idx]); */
-	/* print(dFEV1[n][:n_dFEV1[n]]); */
+	int comp_idx[n_dFEV1[n]] = dFEV1_measure_idx[n][:n_dFEV1[n]];
+	/* print("pred: ", pred_fev1[comp_idx] * -100); */
+	/* print("obs: ", dFEV1[n][:n_dFEV1[n]]); */
 	// Likelihood
-	target += normal_lpdf(dFEV1[n][:n_dFEV1[n]] | pred_fev1[comp_idx] * -100, sigma);
+	dFEV1[n][:n_dFEV1[n]] ~ normal(pred_fev1[comp_idx] * -100, sigma);
+	/* print("__lp: " , target()); */
   }
   
 }
@@ -131,4 +142,5 @@ generated quantities{
 	// Likelihood
 	log_lik += normal_lpdf(dFEV1[n][:n_dFEV1[n]] | pred_fev1[comp_idx], sigma);
   }
+  aic = 2 * 3 - 2 * log_lik;
 }
